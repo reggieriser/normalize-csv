@@ -3,7 +3,8 @@
 This solution is written in Python 3.x.  Specifically, I developed and tested using
 Python 3.6.5, installed via Homebrew on Mac OS X High Sierra (10.13.5).
 It will likely run on earlier versions of Python 3.x, but would need
-some additional work to run on Python 2.x.
+some additional work to run on Python 2.x.  It should run fine on other Python 3.x
+platforms as well.
 
 To simplify the setup, I have only used Python's built-in libraries.
 
