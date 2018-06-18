@@ -1,4 +1,5 @@
 import sys
+
 import csv
 import fileinput
 import re
@@ -40,24 +41,27 @@ if __name__ == "__main__":
     writer = csv.DictWriter(sys.stdout, reader.fieldnames)
     writer.writeheader()
 
-    for row in reader:
-        # Note: Could use pytz for better time zone support, but that brings in an external
-        # dependency which I'd like to avoid to make this simpler for others to run/evaluate.
-        row["Timestamp"] = (
-            datetime.strptime(row["Timestamp"], "%m/%d/%y %I:%M:%S %p")
-            + timedelta(hours=3)
-        ).isoformat()
-        row["ZIP"] = row["ZIP"].zfill(5)
-        row["FullName"] = row["FullName"].upper()
+    for row_number, row in enumerate(reader, 1):
+        try:
+            # Note: Could use pytz for better time zone support, but that brings in an external
+            # dependency which I'd like to avoid to make this simpler for others to run/evaluate.
+            row["Timestamp"] = (
+                    datetime.strptime(row["Timestamp"], "%m/%d/%y %I:%M:%S %p")
+                    + timedelta(hours=3)
+            ).isoformat()
+            row["ZIP"] = row["ZIP"].zfill(5)
+            row["FullName"] = row["FullName"].upper()
 
-        foo_duration = convert_to_timedelta(row["FooDuration"])
-        row["FooDuration"] = foo_duration.total_seconds()
+            foo_duration = convert_to_timedelta(row["FooDuration"])
+            row["FooDuration"] = foo_duration.total_seconds()
 
-        bar_duration = convert_to_timedelta(row["BarDuration"])
-        row["BarDuration"] = bar_duration.total_seconds()
+            bar_duration = convert_to_timedelta(row["BarDuration"])
+            row["BarDuration"] = bar_duration.total_seconds()
 
-        # Note: Add them as timedelta objects to avoid floating point precision issues.
-        total_duration = foo_duration + bar_duration
-        row["TotalDuration"] = total_duration.total_seconds()
+            # Note: Add them as timedelta objects to avoid floating point precision issues.
+            total_duration = foo_duration + bar_duration
+            row["TotalDuration"] = total_duration.total_seconds()
 
-        writer.writerow(row)
+            writer.writerow(row)
+        except Exception as e:
+            sys.stderr.write("WARNING: Dropping data row {} due to error: {}\n".format(row_number, e))
